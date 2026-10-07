@@ -7,8 +7,8 @@ from nbclient import NotebookClient
 
 
 def main():
-    root = Path(__file__).resolve().parent
-    notebook_path = root / "analysis.ipynb"
+    root = Path(__file__).resolve().parent.parent
+    notebook_path = root / "final_output.ipynb"
     notebook = nbformat.read(notebook_path, as_version=4)
     for cell in notebook.cells:
         if cell.cell_type == "code":

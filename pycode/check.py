@@ -10,7 +10,7 @@ from features import chronological_split, early_features, make_cutoff_data
 
 
 def main():
-    root = Path(__file__).resolve().parent
+    root = Path(__file__).resolve().parent.parent
     audit = pd.read_csv(root / "data/ipo_sample.csv", parse_dates=["ipo_date", "outcome_date"])
     panel = pd.read_csv(root / "data/daily_prices.csv", parse_dates=["date"], float_precision="round_trip")
     expected = pd.read_csv(root / "results/historical_forecasts.csv", float_precision="round_trip")

@@ -3,10 +3,11 @@
 Can an IPO's first trading days improve forecasts of its remaining
 benchmark-adjusted return through trading day 60?
 
-Start with **[analysis.ipynb](analysis.ipynb)**. It is the entry point for the
-research question, data audit, model comparisons, uncertainty checks and worked
-forecast. This repository is self-contained: it does not import code or read
-research artifacts from the parent folder.
+I study whether early price performance, trading intensity and realised
+volatility improve forecasts beyond IPO size. I developed this project with
+AI assistance; I explain my research choices and their limitations in
+**[final_output.ipynb](final_output.ipynb)**. The notebook presents the question,
+data checks, model comparisons and an illustrative forecast.
 
 The reference snapshot is 7 September 2026. It contains 1,382 audited listings,
 1,340 mature population candidates and 903 usable IPOs. The two development
@@ -41,30 +42,24 @@ Bayesian-Ipo-Prediction-Model/
 └── results/              Reference estimates used by the notebook
 ```
 
-There is no installable project package, configuration framework, encoded data
-block or JSON sidecar. Data and results are CSVs. Model arrays are NumPy
-`.npz` files loaded with `allow_pickle=False`. The notebook's own `.ipynb`
-format is JSON internally, but the analysis code does not parse JSON.
+I store prepared data and results as CSVs, and saved model draws as NumPy
+`.npz` files. The notebook reads these files locally.
 
-### Files at the repository root
+### Main files
 
 | File | Purpose | Reads or writes |
 |---|---|---|
 | `README.md` | This guide: setup, workflow, file catalogue and research limitations. | Documentation only. |
-| `analysis.ipynb` | The research narrative, exploratory calculations, 18 figures, 20 displayed tables and the illustrative NEWCO forecast. It preserves the source notebook's 49 cells, including all 30 markdown cells. | Reads all three research folders. Running its cells does not save data or fitted models. |
-| `features.py` | Builds early trading signals, the remaining-return target and chronological train/test splits. | Operates on supplied pandas tables; no file writes. |
-| `bayesian_models.py` | Defines predictors, training-only standardisation, Bayesian fitting, model loading, predictive distributions and new-IPO forecasts. | Its loader reads a supplied model file. Its calculations return results to the caller rather than saving them. |
-| `evaluation.py` | Aggregates scores; bootstraps paired model gains; evaluates size groups; calculates activity trajectories, decay fits and missing-outcome bounds. | Operates on supplied tables; no research-file writes. |
-| `check.py` | Checks sample uniqueness, chronological cohorts, selected-model forecasts and future-suffix invariance against the reference snapshot. | Reads prepared data, saved models and two reference result tables. Does not write research artifacts. |
-| `reproduce.py` | Clears notebook outputs in memory, executes all cells in a fresh Jupyter kernel and saves the executed notebook. | Reads and overwrites `analysis.ipynb` only after successful execution. |
-| `refit.py` | Fits the 86 documented predictive experiments, calculates scores and comparisons, regenerates example forecasts and recalculates the two robustness exercises. | Reads prepared data and the reference example issuer list. Writes only beneath `results/refitted/`. |
-| `requirements.txt` | Pins the direct dependencies used to run and check the notebook. | Installation instructions for the analysis environment. |
-| `requirements_fit.txt` | Includes the analysis requirements and adds the Bayesian fitting dependencies. | Installation instructions for refitting. |
+| `final_output.ipynb` | The research narrative, exploratory calculations, figures, tables and illustrative NEWCO forecast. | Reads all three research folders. Running its cells does not save data or fitted models. |
+| `pycode/features.py` | Builds early trading signals, the remaining-return target and chronological train/test splits. | Operates on supplied pandas tables; no file writes. |
+| `pycode/bayesian_models.py` | Defines predictors, training-only standardisation, Bayesian fitting, model loading, predictive distributions and new-IPO forecasts. | Its loader reads a supplied model file. Its calculations return results to the caller rather than saving them. |
+| `pycode/evaluation.py` | Aggregates scores; bootstraps paired model gains; evaluates size groups; calculates activity trajectories, decay fits and missing-outcome bounds. | Operates on supplied tables; no research-file writes. |
+| `pycode/check.py` | Checks sample uniqueness, chronological cohorts, selected-model forecasts and future-suffix invariance against the reference snapshot. | Reads prepared data, saved models and two reference result tables. Does not write research files. |
+| `pycode/reproduce.py` | Clears notebook outputs in memory, executes all cells in a fresh Jupyter kernel and saves the executed notebook. | Reads and overwrites `final_output.ipynb` only after successful execution. |
+| `pycode/refit.py` | Fits the 86 documented predictive experiments, calculates scores and comparisons, regenerates example forecasts and recalculates the two robustness exercises. | Reads prepared data and the reference example issuer list. Writes only beneath `results/refitted/`. |
+| `requirements/requirements.txt` | Pins the direct dependencies used to run and check the notebook. | Installation instructions for the analysis environment. |
+| `requirements/requirements_fit.txt` | Includes the analysis requirements and adds the Bayesian fitting dependencies. | Installation instructions for refitting. |
 | `.gitignore` | Excludes virtual environments, bytecode, notebook checkpoints, Finder metadata and fresh refit outputs from version control. | Git configuration; it does not delete files. |
-
-`.git/` contains Git-managed repository metadata, not research code.
-If `.DS_Store` is present, it is macOS Finder metadata and has no role in the
-analysis. Neither belongs in the scientific reading order.
 
 ### What the calculation files contain
 
@@ -115,26 +110,24 @@ analysis. Neither belongs in the scientific reading order.
 
 ## 2. Run the notebook
 
-The tested interpreter is Python 3.13. The scientific analysis uses NumPy,
-pandas, Matplotlib and SciPy. SciPy provides Student-t probabilities, density
-evaluation and beta-distribution intervals. Scikit-learn is **not currently
-used**. Jupyter-related packages handle notebook execution, not modelling.
+I use Python 3.13 with NumPy, pandas, Matplotlib and SciPy for the analysis.
+Jupyter runs the notebook, and PyMC supplies the Bayesian sampler when refitting.
 
 From this repository's folder on macOS or Linux:
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install -r requirements.txt
+python -m pip install -r requirements/requirements.txt
 python -m ipykernel install --sys-prefix --name python3 --display-name "IPO study"
-jupyter lab analysis.ipynb
+jupyter lab final_output.ipynb
 ```
 
 On Windows, activate the environment with `.venv\Scripts\activate` instead
 of the `source` command.
 
 Choose the **IPO study** kernel and run all cells. Launch Jupyter from this
-folder because the notebook deliberately uses simple relative paths.
+folder so that the notebook can locate `pycode/`, `data/`, `models/` and `results/`.
 
 The kernel registration above is important: `reproduce.py` explicitly requests
 the kernel named `python3`. Registering that name inside the active environment
@@ -144,8 +137,8 @@ The notebook kernel's display name and its internal name are different things.
 For automatic execution and numerical checks:
 
 ```bash
-python check.py
-python reproduce.py
+python pycode/check.py
+python pycode/reproduce.py
 ```
 
 `check.py` uses ordinary Python assertions as well as NumPy comparisons;
@@ -160,8 +153,8 @@ Refitting requires PyMC, PyTensor, ArviZ and xarray in addition to the analysis
 environment:
 
 ```bash
-python -m pip install -r requirements_fit.txt
-python refit.py
+python -m pip install -r requirements/requirements_fit.txt
+python pycode/refit.py
 ```
 
 The script uses four chains, 800 tuning steps and 800 retained draws per chain.
@@ -174,22 +167,22 @@ On macOS, if installed Apple compiler tools report `vector file not found`,
 the following command supplies the SDK header location:
 
 ```bash
-CPLUS_INCLUDE_PATH="$(xcrun --show-sdk-path)/usr/include/c++/v1" python refit.py
+CPLUS_INCLUDE_PATH="$(xcrun --show-sdk-path)/usr/include/c++/v1" python pycode/refit.py
 ```
 
 A compiler-free alternative exists but can be much slower:
 
 ```bash
-PYTENSOR_FLAGS="cxx=" python refit.py
+PYTENSOR_FLAGS="cxx=" python pycode/refit.py
 ```
 
-The compiler-free alternative was not verified to completion.
+I have not verified a complete refit with the compiler-free alternative.
 
 ### What a refit creates
 
 `results/refitted/` is created on demand and is ignored by Git. A repeated
 refit replaces its generated estimates, but never overwrites the published
-reference tables or root-level saved models.
+reference tables or saved models in `models/`.
 
 | Generated file or group | Purpose |
 |---|---|
@@ -232,8 +225,8 @@ models are log returns.
 
 A source-path or local-path field is an audit reference. It does not imply that
 the referenced raw file is included or that any script follows that path.
-The source study documents Nasdaq/Yahoo histories, SEC records and IPOScoop
-initial-return observations; the raw collection pipelines are not shipped.
+I use Nasdaq/Yahoo histories, SEC records and IPOScoop initial-return
+observations. The raw collection pipelines are not included in this repository.
 
 ## 5. Models folder: numeric draws
 
@@ -253,10 +246,10 @@ early price performance and realised volatility are zero.
 | `models/prior_check_day10.npz` | A single `outcome` array with shape `(1, 500, 499)`: 500 prior-predictive draws for the 499 observations in the representative 2024 development training sample. Used for the prior-plausibility histogram. |
 | `models/historical_forecasts.npz` | 30 arrays keyed by issuer identifier and cutoff: predictive draws for six historical IPOs at cutoffs 0, 1, 5, 10 and 20. Used for the historical density plots. |
 
-These are compact replay artifacts, not complete sampler logs. In particular,
+These are compact replay files, not complete sampler logs. In particular,
 full sampling-statistic arrays needed to independently recheck all reported
-divergence and BFMI diagnostics are not retained. The original 86 experiment
-traces are not all included in the reference models folder.
+divergence and BFMI diagnostics are not retained. I include five fitted
+regression archives rather than the complete traces for all 86 experiments.
 
 ## 6. Results folder: reference outputs
 
@@ -280,37 +273,35 @@ cutoff where applicable.
 | `results/activity_distributions.csv` | 720 event-day quantile rows: six activity variables, two size groups and 60 sessions. Supplies the four cumulative/normalised activity charts. |
 | `results/activity_models.csv` | Six constant/power-law/exponential decay fits across daily intensity and absolute returns, with slope uncertainty, held-out MSE and descriptive form comparisons. Displayed in the activity section. |
 | `results/missing_outcomes.csv` | Sixty-four event-probability summaries across size thresholds, cutoffs and observability definitions. Reports identification bounds separately from sampling uncertainty. Supplies the missing-outcome table and chart. |
-| `results/size_performance.csv` | 120 model-performance rows for size thresholds 0, $500m, $1bn and $2bn. Contains the large-IPO performance numbers discussed in Section 16; that section currently does not print this table. |
-| `results/size_comparisons.csv` | Seventy-two paired model comparisons across phase, size threshold and cutoff. The notebook prints the final all-size subset earlier; Section 16 discusses large-IPO subsets stored here without printing them in that section. |
+| `results/size_performance.csv` | 120 model-performance rows for size thresholds 0, $500m, $1bn and $2bn. Contains the large-IPO performance numbers discussed in notebook Section 16. |
+| `results/size_comparisons.csv` | Seventy-two paired model comparisons across phase, size threshold and cutoff. Supports the final all-size comparisons and the large-IPO discussion in notebook Section 16. |
 | `results/benchmark_sensitivity.csv` | Six final-cohort broad/growth benchmark comparison summaries. Retained for inspection, but not displayed by the current notebook or regenerated by `refit.py`. |
 
-## 7. Reproducibility: what the evidence does and does not show
+## 7. Reproducibility
 
-**Saved-snapshot replay works.** The notebook needs only this folder once
-dependencies are installed. The audit reran a temporary copy in a fresh kernel:
-19 code cells completed, all 18 figures regenerated and all 20 displayed tables
-matched the saved table output. `check.py` passed for 976 selected-model
-final-cohort forecasts and 30 historical updates. Aggregate score recomputation
-also agreed with the reference to floating-point precision.
+I provide prepared inputs, saved model draws and result tables so that the
+notebook can be executed without downloading market data. `pycode/check.py`
+checks chronological splits, 976 selected-model final-cohort forecasts,
+30 historical updates and future-suffix invariance. `pycode/reproduce.py`
+executes the notebook in a fresh kernel and saves it after successful execution.
 
-**Predictive refitting has been tested.** In the preceding build verification,
-all 86 documented predictive fits completed with acceptable reported
-diagnostics, and their 53 aggregate log-score and CRPS results matched the
-reference values in that environment. The current audit reran replay and
-numerical checks; it did not repeat all 86 fits. Some bootstrap summaries can
-differ from the archived values even when point estimates agree.
+The saved diagnostic table reports acceptable sampling summaries for all
+86 experiments. These summaries are evidence about the fitted models, but
+I do not include the full chain-level statistics needed to independently
+recheck every diagnostic. Refitting runs the experiment plan again; numerical
+and bootstrap results can differ across environments.
 
-**This is not complete raw-to-report reproduction.** Missing raw-download
-caches, universe-construction inputs and SEC extraction code prevent independent
-reconstruction of the prepared inputs. The day-7 check and additional benchmark
-sensitivity table remain archived. A refit does not automatically refresh the
-notebook, and the saved metadata do not constitute a complete sampler audit.
+I do not provide complete raw-to-report reproduction. The raw-download caches,
+universe-construction inputs and SEC extraction code are absent, so the
+prepared inputs cannot be independently reconstructed from this checkout.
+The day-7 check is a saved calculation; the notebook separately executes a
+day-10 check. The additional benchmark-sensitivity table is saved but is not
+regenerated by the refit script.
 
-Direct package versions are pinned, but transitive dependencies, compiler
-versions and operating-system details are not fully locked. Exact agreement
-in one tested environment is not a guarantee of bit-for-bit agreement on every
-machine. Git is initialised locally; the current project has no committed
-snapshot or experiment history yet.
+Direct package versions are pinned. Transitive dependencies, compiler versions
+and operating-system details are not fully locked. A refit writes to
+`results/refitted/`; I would need to reconcile its tables, model filenames and
+numerical statements before using those outputs in the notebook.
 
 ## 8. Research interpretation and limitations
 
@@ -352,17 +343,13 @@ Keep the following limits in mind:
 - No transaction-cost-aware strategy, order-book mechanism or identification
   of passive-fund demand is estimated.
 
-The notebook retains the original markdown, including wording and presentation
-issues. In particular, Section 13 describes an archived day-7 check and Section
-16 refers to tables not printed there. The code comments and catalogue above
-distinguish those claims from checks actually executed in this repository.
-
 ## 9. Useful technical references
 
 - [NumPy array archives](https://numpy.org/doc/stable/reference/generated/numpy.savez_compressed.html):
   the storage format for numeric posterior and predictive draws.
 - [NBClient notebook execution](https://nbclient.readthedocs.io/en/latest/client.html):
   fresh-kernel execution and explicit kernel selection.
-- [scikit-learn BayesianRidge](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BayesianRidge.html):
-  a possible simpler baseline for future work, not a replacement preserving
-  this study's Student-t likelihood or RV-dependent predictive scale.
+- [PyMC predictive checks](https://www.pymc.io/projects/docs/en/stable/learn/core_notebooks/posterior_predictive.html):
+  assessing the distributions implied by priors and fitted models.
+- [Politis and Romano, The Stationary Bootstrap](https://users.ssc.wisc.edu/~behansen/718/Politis%20Romano.pdf):
+  a basis for investigating uncertainty under calendar dependence.

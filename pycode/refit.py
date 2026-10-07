@@ -13,7 +13,7 @@ from features import chronological_split, make_cutoff_data, remaining_return
 
 
 def main():
-    root = Path(__file__).resolve().parent
+    root = Path(__file__).resolve().parent.parent
     data_folder = root / "data"
     output = root / "results" / "refitted"
     model_folder = output / "models"

@@ -120,7 +120,7 @@ def missing_outcome_bounds(audit, panel):
 
 
 def activity_trajectories(audit, panel):
-    """Normalize daily activity by each issuer's median in sessions 41–60."""
+    """Normalise daily activity by each issuer's median in sessions 41–60."""
     usable = audit[audit.usable][["ipo_id", "ipo_date", "ipo_proceeds"]]
     data = panel.merge(usable, on="ipo_id", how="inner", validate="many_to_one")
     data = data.sort_values(["ipo_id", "day"])
