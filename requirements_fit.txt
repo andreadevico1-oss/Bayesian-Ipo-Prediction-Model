@@ -1,0 +1,5 @@
+-r requirements.txt
+pymc==5.25.1
+pytensor==2.31.7
+arviz==0.22.0
+xarray==2025.4.0
