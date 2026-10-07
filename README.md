@@ -15,26 +15,29 @@ contains 244 IPOs. The final $1bn+ and $2bn+ groups contain only 18 and 4 IPOs.
 
 ## 1. Reading order and project structure
 
-For a first look, read the notebook, then `features.py`, then the predictive
-functions in `bayesian_models.py`. Read `evaluation.py` to understand how
-performance and uncertainty are assessed. The execution scripts are supporting
-tools, not additional research chapters.
+For a first look, read `final_output.ipynb`, then `pycode/features.py`, then the
+predictive functions in `pycode/bayesian_models.py`. Read `pycode/evaluation.py`
+to understand how performance and uncertainty are assessed. The execution
+scripts in `pycode/` are supporting tools, not additional research chapters.
+Dependency files are in `requirements/`.
 
 ```text
-ipo_research/
+Bayesian-Ipo-Prediction-Model/
 ├── README.md
-├── analysis.ipynb
-├── features.py
-├── bayesian_models.py
-├── evaluation.py
-├── check.py
-├── reproduce.py
-├── refit.py
-├── requirements.txt
-├── requirements_fit.txt
+├── final_output.ipynb
 ├── .gitignore
 ├── data/                 Frozen prepared inputs and experiment plan
 ├── models/               Saved numeric posterior and predictive draws
+├── pycode/               Analysis code and execution scripts
+│   ├── features.py
+│   ├── bayesian_models.py
+│   ├── evaluation.py
+│   ├── check.py
+│   ├── reproduce.py
+│   └── refit.py
+├── requirements/         Dependency files
+│   ├── requirements.txt
+│   └── requirements_fit.txt
 └── results/              Reference estimates used by the notebook
 ```
 
